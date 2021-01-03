@@ -42,10 +42,10 @@ class ModelFreeReinforcementLearningAgent:
         return max([(self.get_Q(s,a),a) for a in actions])
 
     def get_V(self, s):
-        return get_V_opt_a(self, s)[0]
+        return self.get_V_opt_a(s)[0]
 
     def get_optimal_action(self, s):
-        return get_V_opt_a(self, s)[1]
+        return self.get_V_opt_a(s)[1]
     
 
 class EpsilonGreedyAgent(ModelFreeReinforcementLearningAgent):
@@ -59,12 +59,12 @@ class EpsilonGreedyAgent(ModelFreeReinforcementLearningAgent):
         else:
             return self.get_optimal_action(s)
 
-    def get_random_action(s):
+    def get_random_action(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
-            input('Warning! No possible action!')  
-            # TODO: Need to do something when nothing is given.
-        return random.sample(actions, 1)
+            input('Warning! No possible action!')
+            # # TODO: Need to do something when nothing is given.
+        return random.choice(actions)
 
 
 class SoftmaxAgent(ModelFreeReinforcementLearningAgent):
@@ -87,8 +87,8 @@ class ClassicalQLearningAgent(ModelFreeReinforcementLearningAgent):
 
     def update_Q(self, s, a, s_, R):
         (x, y), t = a
-        Q_ = R + self.gamma * self.get_V(s_)
-        diff = Q_ - self.Q[x, y, t]
+        Q_sample = R + self.gamma * self.get_V(s_)
+        diff = Q_sample - self.Q[x, y, t]
         self.Q[x, y, t] += (self.alpha * diff)
 
 
@@ -106,20 +106,20 @@ class DeepQlearningAgent(ModelFreeReinforcementLearningAgent):
 
 
 # NOTE: Testing in Programming Assignment ONLY!!!!!!!!!!!!!!!!!
-class QLearningAgentDemo(ModelFreeReinforcementLearningAgent, ReinforcementAgent):
+class QLearningAgentDemo(ModelFreeReinforcementLearningAgent):
     def __init__(self, alpha, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
         self.Q = util.Counter()
    
     def get_Q(self, s, a):
-        if not a in self.Q.keys():
+        if not (s,a) in self.Q.keys():
             self.Q[s, a] = 0
         return self.Q[s, a]
 
     def update_Q(self, s, a, s_, R):
-        Q_ = R + self.gamma * self.get_V(s_)
-        diff = Q_ - self.Q[s, a]
+        Q_sample = R + self.gamma * self.get_V(s_)
+        diff = Q_sample - self.Q[s, a]
         self.Q[s, a] += (self.alpha * diff)
         
     def get_V_opt_a(self, s):
@@ -131,7 +131,7 @@ class QLearningAgentDemo(ModelFreeReinforcementLearningAgent, ReinforcementAgent
     def get_possible_actions(self, s):
         return ReinforcementAgent.getLegalActions(self, s)
     
-    def get_random_action(s):
+    def get_random_action(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
             return None
@@ -140,17 +140,12 @@ class QLearningAgentDemo(ModelFreeReinforcementLearningAgent, ReinforcementAgent
 
 # NOTE: Testing in Programming Assignment ONLY!!!!!!!!!!!!!!!!!
 class MyAgent(EpsilonGreedyAgent, QLearningAgentDemo, ReinforcementAgent):
-    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
-        args['epsilon'] = epsilon
-        args['gamma'] = gamma
-        args['alpha'] = alpha
-        self.numTraining = numTraining
-        self.index = 0  # This is always Pacman
+    def __init__(self, **args):
         EpsilonGreedyAgent.__init__(self, **args)
-        ClassicalQLearningAgent.__init__(self, **args)
+        QLearningAgentDemo.__init__(self, **args)
         ReinforcementAgent.__init__(self, **args)
 
-    def getQvalue(self, s, a):
+    def getQValue(self, s, a):
         return self.get_Q(s, a)
 
     def computeValueFromQValues(self, s):
