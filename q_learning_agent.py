@@ -79,12 +79,18 @@ class SoftmaxAgent(ModelFreeReinforcementLearningAgent):
             input('Warning! No possible action!\nPress ENTER to continue...')
             # # TODO: Need to do something when nothing is given.
         dist = [(exp(self.get_Q(s,a)),a) for a in actions]
+        best = max(dist)
         choice = random.random() * sum([expQ for expQ,a in dist])
+        choice -= best[0]
+        if choice < 0:
+            return best[1]
         for expQ,a in dist:
-            choice -= expQ
-            if choice > 0:
+            if (expQ,a) == best:
                 continue
-            return a
+            choice -= expQ
+            if choice < 0:
+                return a
+        return dist[-1][1]
 
 
 class ClassicalQLearningAgent(ModelFreeReinforcementLearningAgent):
