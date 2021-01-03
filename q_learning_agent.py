@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from math import ceil
+from math import ceil, exp
 
 SCREEN_SIZE = (1920, 1080)
 dx, dy = 50, 50
@@ -15,6 +15,8 @@ def relative_pos(a, b):
 class ModelFreeReinforcementLearningAgent:
     def __init__(self, gamma, **kwargs):
         self.gamma = gamma
+        if kwargs:
+            input(f'Warning! Some arguments unused: {kwargs.keys()}\nPress ENTER to continue...')
         
     def decide(self, s):
         abstract
@@ -37,7 +39,7 @@ class ModelFreeReinforcementLearningAgent:
     def get_V_opt_a(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
-            input('Warning! No possible action!')  
+            input('Warning! No possible action!\nPress ENTER to continue...')  
             # TODO: Need to do something when nothing is given.
         return max([(self.get_Q(s,a),a) for a in actions])
 
@@ -62,17 +64,27 @@ class EpsilonGreedyAgent(ModelFreeReinforcementLearningAgent):
     def get_random_action(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
-            input('Warning! No possible action!')
+            input('Warning! No possible action!\nPress ENTER to continue...')
             # # TODO: Need to do something when nothing is given.
         return random.choice(actions)
 
 
 class SoftmaxAgent(ModelFreeReinforcementLearningAgent):
-    def __init__(self, epsilon, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def decide(self, s):
-        pass
+        actions = self.get_possible_actions(s)
+        if 0 == len(actions):
+            input('Warning! No possible action!\nPress ENTER to continue...')
+            # # TODO: Need to do something when nothing is given.
+        dist = [(exp(self.get_Q(s,a)),a) for a in actions]
+        choice = random.random() * sum([expQ for expQ,a in dist])
+        for expQ,a in dist:
+            choice -= expQ
+            if choice > 0:
+                continue
+            return a
 
 
 class ClassicalQLearningAgent(ModelFreeReinforcementLearningAgent):
