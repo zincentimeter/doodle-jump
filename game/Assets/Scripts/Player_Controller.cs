@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player_Controller : MonoBehaviour {
-
     Rigidbody2D Rigid;
     public float Movement_Speed = 10f;
     private float Movement = 0;
@@ -11,7 +10,7 @@ public class Player_Controller : MonoBehaviour {
     private Vector3 Player_LocalScale;
 	private float move;
     public Sprite[] Spr_Player = new Sprite[2];
-
+	public float speed;
 	// Use this for initialization
 	void Start () 
     {
@@ -45,7 +44,7 @@ public class Player_Controller : MonoBehaviour {
         Vector2 Velocity = Rigid.velocity;
         Velocity.x = Movement;
         Rigid.velocity = Velocity;
-
+		speed = Velocity.y;
         // Player change sprite
         if (Velocity.y < 0)
         {
@@ -84,4 +83,7 @@ public class Player_Controller : MonoBehaviour {
             transform.GetChild(0).parent = null;
         }
     }
+	public float getSpeed(){
+		return speed;
+	}
 }

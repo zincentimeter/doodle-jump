@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{10C48AFA-A162-E96F-386E-A68FF252EB3C}</ProjectGuid>
+    <ProjectGuid>{1AF7E356-2D58-7119-FE6C-C1ED31A62E64}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -62,7 +62,6 @@
      <Compile Include="Assets\Scripts\Share_Score.cs" />
      <Compile Include="Assets\Scripts\Submit_Score.cs" />
      <Compile Include="Assets\Scripts\positionGet.cs" />
-     <None Include="Assets\Scripts\log.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Hub/Editor/5.5.1f1/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -82,7 +81,7 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/5.5.1f1/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
- <HintPath>C:/Users/WuJackie/Desktop/AI project/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
+ <HintPath>C:/Users/WuJackie/Desktop/doodle-jump/game/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
