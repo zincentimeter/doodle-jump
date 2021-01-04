@@ -9,7 +9,7 @@ public class Platform_Brown : MonoBehaviour {
 	void FixedUpdate () 
     {
 		if (Fall_Down)
-            transform.position -= new Vector3(0, 0.01f, 0);
+            transform.position -= new Vector3(0, 0.15f, 0);
 	}
 
     public void Deactive()

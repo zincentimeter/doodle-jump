@@ -15,6 +15,7 @@ public class Player_Controller : MonoBehaviour {
 	public float speed;
 	public float destinationX;
 	public float destinationY;
+	private LineRenderer line;
 	// Use this for initialization
 	void Start () 
     {
@@ -27,18 +28,37 @@ public class Player_Controller : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-		StreamReader sr = new StreamReader ("login.txt", Encoding.UTF8);
-		string line;
-		line = sr.ReadLine ().ToString ();
-		string[] arr = line.Split (' ');
-		int control = int.Parse(arr [0]);
-		destinationX = float.Parse (arr [1]);
-		destinationY = float.Parse (arr [2]);
+		int control = 0;
+		try{
+			StreamReader sw = new StreamReader("login.txt",Encoding.UTF8);
+			string line;
+			line = sw.ReadLine().ToString();
+			sw.Close();
+			string[] arr = line.Split(' ');
+			control = int.Parse(arr[0]);
+			destinationX = float.Parse(arr[1]);
+			destinationY = float.Parse(arr[2]);
+		}
+		catch (System.IO.IOException){
+		}
+		finally{
+		}
+		//string text = System.IO.File.ReadAllText ("login.txt");
+		//string[] arr = text.Split (' ');
+		//int control = int.Parse (arr [0]);
+		//destinationX = float.Parse (arr [1]);
+		//destinationY = float.Parse (arr [2]);
+		line = this.gameObject.GetComponent<LineRenderer>();
+		line.SetColors (Color.red, Color.blue);
+		line.SetWidth (0.05f, 0.05f);
+		Vector3 destination = new Vector3 (destinationX, destinationY, 0);
+		line.SetPosition (0,destination);
+		line.SetPosition (1,new Vector3 (transform.position.x, transform.position.y, 0));
         // Set Movement value
 		if (control == 1)
-			move = 0.5f;
+			move = 0.3f;
 		else if (control == -1)
-			move = -0.5f;
+			move = -0.3f;
 		else
 			move = 0;
 		Movement =  move * Movement_Speed; //Input.GetAxis("Horizontal") * Movement_Speed; //Input.acceleration.x * Movement_Speed;

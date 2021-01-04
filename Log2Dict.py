@@ -47,44 +47,46 @@ def logToDict():
     dict = {}
     global last_dict
     file = open("game/logout.txt")
-
-    for line in file:
-        line = line.replace('(Clone)','')
-        str_list = line.split(" ",1)
-        list.append((str_list[0],str_list[1].replace('\n', '')))
-    if len(list) == 0:
+    try:
+        for line in file:
+            line = line.replace('(Clone)','')
+            str_list = line.split(" ",1)
+            list.append((str_list[0],str_list[1].replace('\n', '')))
+        if len(list) == 0:
+            return last_dict
+        dict['numBoard'] = int(list[0][1])
+        dict['raw_boards'] = []
+        dict['boards'] = []
+        for i in list[1:-3]:
+            set = i[1].replace('(','').replace(')','').split(',')
+            tuple = (float(set[0]),float(set[1]))
+            resampled_tuple = resample(set)
+            # dict['raw_boards'].append((tuple,i[0]))
+            if (i[0] == 'Platform_Green'):
+                type_value = 0
+            elif (i[0] == 'Platform_Brown'):
+                type_value = 1
+            elif (i[0] == 'Platform_Blue'):
+                type_value = 2
+            elif (i[0] == 'Platform_White'):
+                type_value = 3
+            elif (i[0] == 'Propeller'):
+                type_value = 4
+            elif (i[0] == 'Trampoline'):
+                type_value = 5
+            elif (i[0] == 'Spring'):
+                type_value = 6
+            dict['raw_boards'].append((tuple, type_value))
+            dict['boards'].append((resampled_tuple, type_value))
+        set = list[-3][1].replace('(', '').replace(')', '').split(',')
+        tuple = (float(set[0]), float(set[1]))
+        dict['agent_pos'] = tuple
+        dict['agentSpeed'] = float(list[-2][1])
+        dict['score'] = int(list[-1][1])
+        last_dict = dict
+        return dict
+    except:
         return last_dict
-    dict['numBoard'] = int(list[0][1])
-    dict['raw_boards'] = []
-    dict['boards'] = []
-    for i in list[1:-3]:
-        set = i[1].replace('(','').replace(')','').split(',')
-        tuple = (float(set[0]),float(set[1]))
-        resampled_tuple = resample(set)
-        # dict['raw_boards'].append((tuple,i[0]))
-        if (i[0] == 'Platform_Green'):
-            type_value = 0
-        elif (i[0] == 'Platform_Brown'):
-            type_value = 1
-        elif (i[0] == 'Platform_Blue'):
-            type_value = 2
-        elif (i[0] == 'Platform_White'):
-            type_value = 3
-        elif (i[0] == 'Propeller'):
-            type_value = 4
-        elif (i[0] == 'Trampoline'):
-            type_value = 5
-        elif (i[0] == 'Spring'):
-            type_value = 6
-        dict['raw_boards'].append((tuple, type_value))
-        dict['boards'].append((resampled_tuple, type_value))
-    set = list[-3][1].replace('(', '').replace(')', '').split(',')
-    tuple = (float(set[0]), float(set[1]))
-    dict['agent_pos'] = tuple
-    dict['agentSpeed'] = float(list[-2][1])
-    dict['score'] = int(list[-1][1])
-    last_dict = dict
-    return dict
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ dx, dy = 50, 50
 W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)
 T = 10
-
+last_D = 0
 
 def relative_pos(a, b):
     return (a[0] - b[0], a[1] - b[1])
@@ -206,7 +206,6 @@ if __name__ == "__main__":
         # input(input_dict)
         agent = ClassicalQLearningAgent(alpha=0.02, gamma=0.02)
         action = agent.get_optimal_action(input_dict)
-        input(action)
-        input(desample(action[0]))
-        file = open('game/login.txt')
+        destinationY = desample(action[0])[1]
         output(input_dict, desample(action[0])[1])
+
