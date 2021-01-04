@@ -43,3 +43,8 @@ def logToDict():
     dict['score'] = int(list[-1][1])
     last_dict = dict
     return dict
+
+
+while True:
+    print(logToDict())
+    os.system("cls")

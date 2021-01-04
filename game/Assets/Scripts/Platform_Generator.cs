@@ -28,7 +28,7 @@ public class Platform_Generator : MonoBehaviour {
         Offset = 1.2f;
 
         // Initialize platforms
-        Generate_Platform(10);
+		Generate_Platform(Random.Range(20, 30));
 	}
 	
 	// Update is called once per frame
@@ -45,7 +45,7 @@ public class Platform_Generator : MonoBehaviour {
             float Dist_Y = Random.Range(2f, 5f);
 
             // Create brown platform random with 1/8 probability
-            int Rand_BrownPlatform = Random.Range(1, 8);
+            int Rand_BrownPlatform = Random.Range(1, 8+1);
 
             if (Rand_BrownPlatform == 1)
             {
@@ -57,7 +57,7 @@ public class Platform_Generator : MonoBehaviour {
             }
 
             // Create other platform
-            Current_Y += Dist_Y;
+			Current_Y += Dist_Y * (0.7f);
             Vector3 Platform_Pos = new Vector3(Dist_X, Current_Y, 0);
             int Rand_Platform = Random.Range(1, 10);
 

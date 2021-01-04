@@ -16,6 +16,8 @@ public class Player_Controller : MonoBehaviour {
     {
         Rigid = GetComponent<Rigidbody2D>();
         Player_LocalScale = transform.localScale;
+
+		// Rigid.velocity = 0;
 	}
 	
 	// Update is called once per frame

@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\Data_Manager.cs" />
      <Compile Include="Assets\Scripts\File_Manager.cs" />
      <Compile Include="Assets\Scripts\Game_Controller.cs" />
+     <Compile Include="Assets\Scripts\LineDrawer.cs" />
      <Compile Include="Assets\Scripts\Menu_Platform.cs" />
      <Compile Include="Assets\Scripts\Platform.cs" />
      <Compile Include="Assets\Scripts\Platform_Blue.cs" />

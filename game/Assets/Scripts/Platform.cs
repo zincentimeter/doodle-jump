@@ -71,7 +71,7 @@ public class Platform : MonoBehaviour {
             if (Rigid != null)
             {
                 Vector2 Force = Rigid.velocity;
-                Force.y = Jump_Force;
+                Force.y = 0.7f * Jump_Force;
                 Rigid.velocity = Force;
 
                 // Play jump sound
