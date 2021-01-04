@@ -1,8 +1,8 @@
 import random
 import numpy as np
-from math import ceil, exp
+from math import ceil, exp, trunc
 
-SCREEN_SIZE = (1920, 1080)
+SCREEN_SIZE = (720, 1280)
 dx, dy = 50, 50
 W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)
@@ -10,14 +10,19 @@ T = 10
 
 
 def relative_pos(a, b):
-    return (a[0]-b[0], a[1]-b[1])
+    return (a[0] - b[0], a[1] - b[1])
+
+
+def trunc_tuple(a: tuple):
+    return (trunc(a[0]), trunc(a[1]))
+
 
 class ModelFreeReinforcementLearningAgent:
     def __init__(self, gamma, **kwargs):
         self.gamma = gamma
         if kwargs:
             input(f'Warning! Some arguments unused: {kwargs.keys()}\nPress ENTER to continue...')
-        
+
     def decide(self, s):
         abstract
 
@@ -32,23 +37,23 @@ class ModelFreeReinforcementLearningAgent:
         actions = list()
         for board in s['boards']:
             p, t = board[:2]
-            actions.append((trunc(relative_pos(p,p0)), t))
+            actions.append((trunc_tuple(relative_pos(p, p0)), t))
             # TODO: Truncate position to integer
         return actions
 
     def get_V_opt_a(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
-            input('Warning! No possible action!\nPress ENTER to continue...')  
+            input('Warning! No possible action!\nPress ENTER to continue...')
             # TODO: Need to do something when nothing is given.
-        return max([(self.get_Q(s,a),a) for a in actions])
+        return max([(self.get_Q(s, a), a) for a in actions])
 
     def get_V(self, s):
         return self.get_V_opt_a(s)[0]
 
     def get_optimal_action(self, s):
         return self.get_V_opt_a(s)[1]
-    
+
 
 class EpsilonGreedyAgent(ModelFreeReinforcementLearningAgent):
     def __init__(self, epsilon, **kwargs):
@@ -78,14 +83,14 @@ class SoftmaxAgent(ModelFreeReinforcementLearningAgent):
         if 0 == len(actions):
             input('Warning! No possible action!\nPress ENTER to continue...')
             # # TODO: Need to do something when nothing is given.
-        dist = [(exp(self.get_Q(s,a)),a) for a in actions]
+        dist = [(exp(self.get_Q(s, a)), a) for a in actions]
         best = max(dist)
-        choice = random.random() * sum([expQ for expQ,a in dist])
+        choice = random.random() * sum([expQ for expQ, a in dist])
         choice -= best[0]
         if choice < 0:
             return best[1]
-        for expQ,a in dist:
-            if (expQ,a) == best:
+        for expQ, a in dist:
+            if (expQ, a) == best:
                 continue
             choice -= expQ
             if choice < 0:
@@ -97,10 +102,15 @@ class ClassicalQLearningAgent(ModelFreeReinforcementLearningAgent):
     def __init__(self, alpha, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
-        self.Q = np.zeros((X,Y,T))
-   
+        self.Q = np.zeros((100, 100, 20))
+        # input(self.Q.size)
+
     def get_Q(self, s, a):
         (x, y), t = a
+        # input(a)
+        # input((x, y, t))
+        if x < 0 or y < 0: return 0
+        # input(self.Q[x, y, t])
         return self.Q[x, y, t]
 
     def update_Q(self, s, a, s_, R):
@@ -128,10 +138,11 @@ class QLearningAgentDemo(ModelFreeReinforcementLearningAgent):
     def __init__(self, alpha, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
-        self.Q = util.Counter()
-   
+        # self.Q = util.Counter()
+        self.Q = np.zeros((X, Y, T))
+
     def get_Q(self, s, a):
-        if not (s,a) in self.Q.keys():
+        if not (s, a) in self.Q.keys():
             self.Q[s, a] = 0
         return self.Q[s, a]
 
@@ -139,29 +150,30 @@ class QLearningAgentDemo(ModelFreeReinforcementLearningAgent):
         Q_sample = R + self.gamma * self.get_V(s_)
         diff = Q_sample - self.Q[s, a]
         self.Q[s, a] += (self.alpha * diff)
-        
+
     def get_V_opt_a(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
             return (0, None)
-        return max([(self.get_Q(s,a),a) for a in actions])
+        return max([(self.get_Q(s, a), a) for a in actions])
 
     def get_possible_actions(self, s):
         return ReinforcementAgent.getLegalActions(self, s)
-    
+
     def get_random_action(self, s):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
             return None
-        return random.sample(actions, 1)    
-        
+        return random.sample(actions, 1)
 
-# NOTE: Testing in Programming Assignment ONLY!!!!!!!!!!!!!!!!!
-class MyAgent(EpsilonGreedyAgent, QLearningAgentDemo, ReinforcementAgent):
+    # NOTE: Testing in Programming Assignment ONLY!!!!!!!!!!!!!!!!!
+
+
+class MyAgent(EpsilonGreedyAgent, QLearningAgentDemo):
     def __init__(self, **args):
         EpsilonGreedyAgent.__init__(self, **args)
         QLearningAgentDemo.__init__(self, **args)
-        ReinforcementAgent.__init__(self, **args)
+        # ReinforcementAgent.__init__(self, **args)
 
     def getQValue(self, s, a):
         return self.get_Q(s, a)
@@ -184,4 +196,17 @@ class MyAgent(EpsilonGreedyAgent, QLearningAgentDemo, ReinforcementAgent):
     def getValue(self, state):
         return self.computeValueFromQValues(state)
 
-    
+
+if __name__ == "__main__":
+    from Log2Dict import *
+    from destination import *
+
+    while (True):
+        input_dict = logToDict()
+        # input(input_dict)
+        agent = ClassicalQLearningAgent(alpha=0.02, gamma=0.02)
+        action = agent.get_optimal_action(input_dict)
+        input(action)
+        input(desample(action[0]))
+        file = open('game/login.txt')
+        output(input_dict, desample(action[0])[1])

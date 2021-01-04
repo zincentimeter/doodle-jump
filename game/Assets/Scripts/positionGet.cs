@@ -36,8 +36,7 @@ public class positionGet : MonoBehaviour {
 		log += "\n";
 		log += "score ";
 		log += text.text;
-		print (log);
-		FileStream fs = new FileStream("log.txt", FileMode.Create);
+		FileStream fs = new FileStream("logout.txt", FileMode.Create);
 		StreamWriter sw = new StreamWriter(fs);
 		sw.Write(log);
 		sw.Flush();

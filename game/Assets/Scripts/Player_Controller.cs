@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 public class Player_Controller : MonoBehaviour {
     Rigidbody2D Rigid;
     public float Movement_Speed = 10f;
@@ -11,6 +13,8 @@ public class Player_Controller : MonoBehaviour {
 	private float move;
     public Sprite[] Spr_Player = new Sprite[2];
 	public float speed;
+	public float destinationX;
+	public float destinationY;
 	// Use this for initialization
 	void Start () 
     {
@@ -23,11 +27,18 @@ public class Player_Controller : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
+		StreamReader sr = new StreamReader ("login.txt", Encoding.UTF8);
+		string line;
+		line = sr.ReadLine ().ToString ();
+		string[] arr = line.Split (' ');
+		int control = int.Parse(arr [0]);
+		destinationX = float.Parse (arr [1]);
+		destinationY = float.Parse (arr [2]);
         // Set Movement value
-		if (Input.GetKey (KeyCode.LeftArrow))
-			move = -0.5f;
-		else if (Input.GetKey (KeyCode.RightArrow))
+		if (control == 1)
 			move = 0.5f;
+		else if (control == -1)
+			move = -0.5f;
 		else
 			move = 0;
 		Movement =  move * Movement_Speed; //Input.GetAxis("Horizontal") * Movement_Speed; //Input.acceleration.x * Movement_Speed;
