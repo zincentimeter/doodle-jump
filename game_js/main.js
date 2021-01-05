@@ -363,7 +363,9 @@ function init() {
       s.y = p.y - p.height - 10;
 
       if (s.y > height / 1.1) s.state = 0;
-
+      
+      //Add the spring logic
+      platforms[0].hasSpring = 1;
       s.draw();
     } else {
       s.x = 0 - s.width;
@@ -633,6 +635,7 @@ function send() {
     var single_board = {};
     single_board.board_pos = [platforms[i].x,platforms[i].y]
     single_board.board_type = platforms[i].type;
+    single_board.hasSpring = platforms[i].hasSpring
     boards_array.push(single_board);
   }
   senddata.boards = boards_array;
