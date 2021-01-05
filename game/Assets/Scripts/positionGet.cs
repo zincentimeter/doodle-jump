@@ -9,10 +9,12 @@ public class positionGet : MonoBehaviour {
 	private GameObject[] m_Desk;
 	public Player_Controller player;
 	public Text text;
+	public GameObject Camera;
 	// Use this for initialization
 	void Start () {
 		player = GameObject.Find("Doodler").GetComponent<Player_Controller>();
 		text = GameObject.Find ("Text_Score").GetComponent<Text>();
+		Camera = GameObject.Find ("Main Camera");
 	}
 	
 	// Update is called once per frame
@@ -36,6 +38,9 @@ public class positionGet : MonoBehaviour {
 		log += "\n";
 		log += "score ";
 		log += text.text;
+		log += "\n";
+		log += "Camera ";
+		log += Camera.transform.position.y.ToString ();
 		FileStream fs = new FileStream("logout.txt", FileMode.Create);
 		StreamWriter sw = new StreamWriter(fs);
 		sw.Write(log);

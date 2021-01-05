@@ -9,6 +9,7 @@ X, Y = ceil(W / dx), ceil(H / dy)
 T = 10
 last_D = 0
 
+
 def relative_pos(a, b):
     return (a[0] - b[0], a[1] - b[1])
 
@@ -37,16 +38,19 @@ class ModelFreeReinforcementLearningAgent:
         actions = list()
         for board in s['boards']:
             p, t = board[:2]
-            actions.append((trunc_tuple(relative_pos(p, p0)), t))
+            # actions.append((trunc_tuple(relative_pos(p, p0)), t))
+            actions.append((p, t))
             # TODO: Truncate position to integer
         return actions
 
     def get_V_opt_a(self, s):
         actions = self.get_possible_actions(s)
+        # input("actions = %s" % str(actions))
         if 0 == len(actions):
             input('Warning! No possible action!\nPress ENTER to continue...')
             # TODO: Need to do something when nothing is given.
-        return max([(self.get_Q(s, a), a) for a in actions])
+        # input(f"max = {str(max([(self.get_Q(s, a), a) for a in actions], key=lambda x:x[0]))}\n")
+        return max([(self.get_Q(s, a), a) for a in actions], key=lambda x:x[0])
 
     def get_V(self, s):
         return self.get_V_opt_a(s)[0]
@@ -102,19 +106,23 @@ class ClassicalQLearningAgent(ModelFreeReinforcementLearningAgent):
     def __init__(self, alpha, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
-        self.Q = np.zeros((100, 100, 20))
+        self.Q = np.zeros((X, Y, T))
         # input(self.Q.size)
 
     def get_Q(self, s, a):
         (x, y), t = a
-        # input(a)
+        # input("a = %s" % str(a))
         # input((x, y, t))
-        if x < 0 or y < 0: return 0
+        if x < 0 or y < 0: return 0.0
+        if x >= X or y >= Y: return 0.0
         # input(self.Q[x, y, t])
+        # print("safe!")
         return self.Q[x, y, t]
 
     def update_Q(self, s, a, s_, R):
         (x, y), t = a
+        if x < 0 or y < 0: return
+        if x > X or y > Y: return
         Q_sample = R + self.gamma * self.get_V(s_)
         diff = Q_sample - self.Q[x, y, t]
         self.Q[x, y, t] += (self.alpha * diff)
@@ -200,12 +208,20 @@ class MyAgent(EpsilonGreedyAgent, QLearningAgentDemo):
 if __name__ == "__main__":
     from Log2Dict import *
     from destination import *
-
+    epoch = 0
+    agent = ClassicalQLearningAgent(alpha=0.02, gamma=0.02)
     while (True):
-        input_dict = logToDict()
-        # input(input_dict)
-        agent = ClassicalQLearningAgent(alpha=0.02, gamma=0.02)
-        action = agent.get_optimal_action(input_dict)
-        destinationY = desample(action[0])[1]
-        output(input_dict, desample(action[0])[1])
 
+        input_s = logToDict()
+        # input(input_dict)
+        if epoch != 0:
+            agent.update_Q(last_s, last_action, input_s, 1)
+        action = agent.get_optimal_action(input_s)
+        # input("action = %s" % str(action)+' // '+str(desample(action[0])))
+        destinationY = desample(action[0])[1]
+        # print(destinationY)
+        # pusu(input_dict)
+        output(input_s, destinationY)
+        last_action = action
+        last_s = input_s
+        epoch += 1

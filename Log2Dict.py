@@ -9,19 +9,19 @@ W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)
 T = 10
 raw_x = 5.5625 # [-raw_x , raw_x]
-raw_y = (raw_x * 2) / SCREEN_SIZE[0] * SCREEN_SIZE[1] # [0, raw_y]
+raw_y = 10 # [-raw_y, raw_y]
 
 
-def resample(a : set):
-    x, y = float(a[0]), float(a[1])
+def resample(a : tuple):
+    x, y = a[0], a[1]
     x = trunc((x / raw_x + 1) * X * 0.5)
-    y = trunc(y / raw_y * Y)
+    y = trunc((y / raw_y + 1) * Y * 0.5)
     return (x,y)
 
 def desample(a : set):
     x, y = int(a[0]), int(a[1])
     x = (x * 2 / X - 1) * raw_x
-    y = y / Y * raw_y
+    y = (y * 2 / Y - 1) * raw_y
     return (x,y)
 
 def logToDict():
@@ -57,11 +57,22 @@ def logToDict():
         dict['numBoard'] = int(list[0][1])
         dict['raw_boards'] = []
         dict['boards'] = []
-        for i in list[1:-3]:
+
+        # CameraY
+        camera_y = dict['CameraY'] = float(list[-1][1])
+
+        # agent position
+        set = list[-4][1].replace('(', '').replace(')', '').split(',')
+        tuple = (float(set[0]), float(set[1]) - camera_y)
+        # input("raw_tuple %s" % set)
+        dict['agent_pos'] = resample(tuple)
+        # dict['raw_agent_pos'] = tuple
+        for i in list[1:-4]:
             set = i[1].replace('(','').replace(')','').split(',')
-            tuple = (float(set[0]),float(set[1]))
-            resampled_tuple = resample(set)
-            # dict['raw_boards'].append((tuple,i[0]))
+            # input("tuple = %s" % str((float(set[0]),float(set[1]))))
+            # input("tuple(relative) = %s" % str((float(set[0]),float(set[1])-camera_y)))
+            tuple = (float(set[0]),float(set[1]) - camera_y)
+            resampled_tuple = resample(tuple)
             if (i[0] == 'Platform_Green'):
                 type_value = 0
             elif (i[0] == 'Platform_Brown'):
@@ -78,15 +89,14 @@ def logToDict():
                 type_value = 6
             dict['raw_boards'].append((tuple, type_value))
             dict['boards'].append((resampled_tuple, type_value))
-        set = list[-3][1].replace('(', '').replace(')', '').split(',')
-        tuple = (float(set[0]), float(set[1]))
-        dict['agent_pos'] = tuple
-        dict['agentSpeed'] = float(list[-2][1])
-        dict['score'] = int(list[-1][1])
+
+        dict['agentSpeed'] = float(list[-3][1])
+        dict['score'] = int(list[-2][1])
         last_dict = dict
         return dict
     except:
         return last_dict
+
 
 
 if __name__ == "__main__":
