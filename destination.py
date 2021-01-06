@@ -28,7 +28,7 @@ def output(dict, destinationY):
         rightDir = destinationX - playerX
         leftDir = playerX + 5.5625 + (5.5625 - destinationX)
     else:
-        destinationY = destinationY + dict['CameraY']
+        destinationY = destinationY + dict['camera_y']
         text = '0 ' + str(destinationX) + ' ' + str(destinationY)
         print(text)
         try:
@@ -39,7 +39,7 @@ def output(dict, destinationY):
             print("error")
         return
 
-    destinationY = destinationY + dict['CameraY']
+    destinationY = destinationY + dict['camera_y']
     # input("destinationY = %s" % str(destinationY))
     if rightDir <= leftDir:
         text = '1 ' + str(destinationX) + ' ' + str(destinationY)
@@ -56,7 +56,7 @@ def output(dict, destinationY):
 
 
 def pusu(dict):
-    speed = dict["agentSpeed"]
+    speed = dict["agent_speed"]
     global lastX, lastY, tf
     destinationX = 0
     if abs(speed) > 13.5:

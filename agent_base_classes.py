@@ -1,13 +1,8 @@
 import random
 import numpy as np
 from math import ceil, exp, trunc
+from utils import *
 
-SCREEN_SIZE = (720, 1280)
-dx, dy = 50, 50
-W, H = SCREEN_SIZE
-X, Y = ceil(W / dx), ceil(H / dy)
-T = 10
-last_D = 0
 
 def relative_pos(a, b):
     return (a[0] - b[0], a[1] - b[1])
