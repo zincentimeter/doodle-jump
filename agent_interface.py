@@ -4,11 +4,12 @@ from agent_base_classes import *
 from math import ceil, exp, trunc
 
 SCREEN_SIZE = (720, 1280)
-dx, dy = 50, 50
+dx, dy = 8, 8
 W, H = SCREEN_SIZE
-X, Y = ceil(W / dx), ceil(H / dy)
-T = 10
-last_D = 0
+X, Y = ceil(W / dx), ceil(H / dy)  # = (90, 160)
+T = 7  # State Size = 100800
+raw_x = 5.5625  # [-raw_x , raw_x]
+raw_y = 10  # [-raw_y, raw_y]
 
 def relative_pos(a, b):
     return (a[0] - b[0], a[1] - b[1])
@@ -23,7 +24,7 @@ class DoodleJumpQLearningAgent(QLA, EGA):
     def __init__(self, **kwargs):
         QLA.__init__(self, **kwargs)
         EGA.__init__(self, **kwargs)
-        self.Q = np.zeros((X, Y, 20))
+        self.Q = np.zeros((X, Y, T))
 
     def get_Q(self, s, a):
         (x, y), t = a
@@ -47,11 +48,11 @@ class DoodleJumpQLearningAgent(QLA, EGA):
 if __name__ == "__main__":
     from game_interface import *
 
-    agent = DoodleJumpQLearningAgent(alpha=0.02, gamma=0.02)
+    agent = DoodleJumpQLearningAgent(alpha=0.02, gamma=0.8, epsilon=0.05)
     
     gameState = logToDict()
     input(gameState)
-    action = agent.get_optimal_action(gameState)
+    action = agent.decide(gameState)
     writeBack(getFormated(gameState, action))
     lastState = gameState
     lastAction = action
