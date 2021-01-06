@@ -4,16 +4,6 @@ from math import ceil, exp, trunc
 from utils import *
 
 
-def relative_pos(a, b):
-    return (a[0] - b[0], a[1] - b[1])
-
-
-def trunc_tuple(a: tuple, dx=1, dy=1):
-    x, y = a
-    x = round(x / dx)
-    y = round(y / dy)
-    return x, y
-
 try:
     del abstract, not_defined
 except:
@@ -129,18 +119,78 @@ QLA = QLearningAgent
 ########################
 # Deep Q Learning Part #
 ########################
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+import torchvision.transforms as T
 
-class DeepQNetwork:
-    pass
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+class DeepQNetwork(nn.Module):
+    # def __init__(self, h, w, outputs):
+    #     super(DQN, self).__init__()
+    #     self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
+    #     self.bn1 = nn.BatchNorm2d(16)
+    #     self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
+    #     self.bn2 = nn.BatchNorm2d(32)
+    #     self.conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+    #     self.bn3 = nn.BatchNorm2d(32)
+    #     # Linear
+    # def forward(self, x):
+    #     x = F.relu(self.bn1(self.conv1(x)))
+    #     x = F.relu(self.bn2(self.conv2(x)))
+    #     x = F.relu(self.bn3(self.conv3(x)))
+    #     return self.head(x.view(x.size(0), -1))
+    def __init__(self, dim_state=4*30, dim_action=2):
+        super(DeepQNetwork, self).__init__()
+        self.fc1 = nn.Linear(dim_state, 50)
+        self.fc1.weight.data.normal_(0, 0.1)
+        # self.fc2 = nn.Linear(50, 50)
+        # self.fc2.weight.data.normal_(0, 0.1)
+        self.out = nn.Linear(50, dim_action)
+        self.out.weight.data.normal_(0, 0.1)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        # x = F.relu(self.fc2(x))
+        x = F.relu(self.out(x))
+        return x
+
+
+
+class ReplayMemory:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.memory = list()
+        self.head = 0
+
+    def push(self, transition):
+        if len(self.memory) < self.capacity:
+            self.memory.append(transition)
+        else:
+            self.memory[self.head] = transition
+        self.head = (self.head + 1) % self.capacity
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def is_full(self):
+        return len(self.memory) == self.capacity
+
 
 class DeepQLearningAgent(MFRLA):
     def __init__(self, alpha, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
-        self.Q = DeepQNetwork()
+        self.Q = DeepQNetwork().to(DEVICE)
+
+    def learn(self):
+        abstract
 
     def get_Q(self, s, a):
         return self.Q.query(s, a)
+
         
 DQLA = DeepQLearningAgent
 
@@ -156,9 +206,13 @@ NDQLA = NaiveDeepQLearningAgent
 class ExperienceReplayAgent(DQLA):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.experience = list()
+        self.exp = self.ReplayMemory(10000)
 
     def observe(self, s, a, s_, R):
+        transition = (s, a, s_, R)
+        self.exp.push(transition)
+
+    def learn(self):
         not_defined  # TODO: not_defined
         
     def update_Q(self, s, a, s_, R):
@@ -169,9 +223,10 @@ ERA = ExperienceReplayAgent
 class FixedQTargetsAgent(DQLA):
     def __init__(self, C, **kwargs):
         super().__init__(**kwargs)
-        self.Q_target = self.Q.deepcopy()
-        self.C = C
-        self.step_counter = 0  # Every C step, set Q_target = Q
+        self.C = C  # Every C step, set Q_target = Q
+        self.step_counter = 0  
+        self.Q_target = DeepQNetwork().to(DEVICE)
+        self.Q_target.load_state_dict(self.Q.state_dict()).eval()
 
     def observe(self, s, a, s_, R):  # save experience
         not_defined  # TODO: not_defined
@@ -183,4 +238,3 @@ class FixedQTargetsAgent(DQLA):
         not_defined  # TODO: not_defined
 
 FQTA = FixedQTargetsAgent
-
