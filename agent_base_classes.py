@@ -34,14 +34,8 @@ class ModelFreeReinforcementLearningAgent:
         abstract
 
     def get_possible_actions(self, s):
-        # TODO: abstract
-        p0 = s['agent_pos']
-        actions = list()
-        for board in s['boards']:
-            p, t = board[:2]
-            actions.append((trunc_tuple(relative_pos(p, p0)), t))
-            # TODO: Truncate position to integer
-        return actions
+        abstract
+
 
     def raise_no_actions_error(self):
         input('Warning! No possible action!\nPress ENTER to continue...')
