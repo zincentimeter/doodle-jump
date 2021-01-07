@@ -31,8 +31,7 @@ class ModelFreeReinforcementLearningAgent:
         abstract
 
     def raise_no_possible_actions_error(self):
-        input('Warning! No possible action!\nPress ENTER to continue...')
-        # TODO: Need to do something when nothing is given.
+        raise Exception("No Possible Action!")
 
     def get_V_opt_a(self, s):
         return max(self.get_Q_a_list(s))
@@ -193,7 +192,7 @@ class ReplayMemory:
 Transition = namedtuple('Transition', ('s', 'a', 's_', 'R'))
 
 
-class ExperienceReplayAgent(DQLA):
+class ExperienceReplayDeepQLearningAgent(MFRLA):
     def __init__(self, alpha, C, batch_size, dim_state=4*10*3, dim_action=2, **kwargs):
         super().__init__(**kwargs)
         self.alpha = alpha
@@ -236,12 +235,12 @@ class ExperienceReplayAgent(DQLA):
             param.grad.data.clamp(-1,1)
         self.optimizer.step()
 
-    def get_Q(self, s, a):
-        return self.get_Q_a_list(s)[a][0]
-
     def get_Q_a_list(self, s):
         with torch.no_grad():
             y = self.Q(s)
         return [(q.item(), i) for i, q in enumerate(y[0])]
 
-ERA = ExperienceReplayAgent
+    def get_Q(self, s, a):
+        return self.get_Q_a_list(s)[a][0]
+
+ERDQLA = ExperienceReplayDeepQLearningAgent
