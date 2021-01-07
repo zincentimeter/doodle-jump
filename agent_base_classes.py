@@ -110,6 +110,7 @@ class QLearningAgent(MFRLA):
 
     def observe(self, s, a, s_, R):
         self.update_Q(s, a, s_, R)
+        return self.Q
 
     def get_Q(self, s, a):
         try:

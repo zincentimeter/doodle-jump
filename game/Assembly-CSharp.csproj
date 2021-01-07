@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Button_OnClick.cs" />
      <Compile Include="Assets\Scripts\Camera_Follow.cs" />
+     <Compile Include="Assets\Scripts\Communicate_Python.cs" />
      <Compile Include="Assets\Scripts\Data_Manager.cs" />
      <Compile Include="Assets\Scripts\File_Manager.cs" />
      <Compile Include="Assets\Scripts\Game_Controller.cs" />
@@ -82,7 +83,7 @@
  <HintPath>C:/Program Files/Unity/Hub/Editor/5.5.1f1/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
- <HintPath>C:/Users/WuJackie/Desktop/doodle-jump/game/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
+ <HintPath>C:/Users/zince/Desktop/doodle-jump/game/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

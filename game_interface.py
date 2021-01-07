@@ -1,10 +1,38 @@
 import os
 import utils
+import numpy as np
+import ast
 from utils import *
 
 ##############################################################
 # Game -> Model Processing
 
+def getGameState():
+    received_dict = receiveDict()
+    relative_boards = list()
+    agent_pos = received_dict['agent_pos']
+    for raw_board in received_dict['raw_boards']:
+        # relative_boards.append()
+        raw_board_pos = raw_board[0]
+        board_type = raw_board[1]
+        relative_board_pos = absoluteToRelative(raw_board_pos, agent_pos)
+        relative_boards.append( (relative_board_pos, board_type) )
+        pass
+    
+    # input(dict_received)
+
+def receiveDict():
+    connection, address = utils.s.accept()
+    print("connection accpeted.\nreceiving...")
+    bytes_received = connection.recv(8192)
+    dict_received = bytes_received.decode('ASCII')
+    print("gotcha. length : %s." % str(len(dict_received)))
+    bytes_to_send = bytes(dict_received,'ASCII')
+    print("sending...")
+    connection.sendall(bytes_to_send)
+    print("sent...")
+    connection.close()
+    return ast.literal_eval(dict_received)
 
 def retrieveGameState():
     '''
@@ -37,7 +65,7 @@ def retrieveGameState():
         if len(read_buffer) == 0:
             return utils.last_gameState
 
-        # camera_y
+        # camera_y - DEPRECATED
         gameState['camera_y'] = float(read_buffer[-1][1])
 
         # agent position
@@ -56,7 +84,7 @@ def retrieveGameState():
             relative_board_pos = absoluteToRelative(
                 absolute_board_pos, agent_pos)
             type_value = getTypeValue(i[0])
-            if relative_board_pos[1] <= 0.5 * Y:
+            if relative_board_pos[1] <= Y:
                 gameState['raw_boards'     ].append((absolute_board_pos, type_value))
                 gameState['relative_boards'].append((relative_board_pos, type_value))
             else:
@@ -70,6 +98,7 @@ def retrieveGameState():
         # score : used for reward
         gameState['score'] = int(read_buffer[-2][1])
         utils.last_gameState = gameState
+        utils.text = read_buffer
         return gameState
     except:
         print("error happened and last dict is given.")
@@ -90,7 +119,10 @@ def findDestination(gameState: dict, action: tuple):
     return boards_sorted[0]
 
 def findDestination_absolute(gameState: dict, absolute_y: float):
-    return min( gameState["raw_boards"], key = lambda board: abs(absolute_y - board[0][1])  )
+    closest_entry = min( gameState["raw_boards"], key = lambda board: abs(absolute_y - board[0][1])  )
+    # print("closest_entry %s" % str(closest_entry))
+    return closest_entry
+    
     # for board in gameState["raw_boards"]:
     #     input(absolute_y - board[0][1])
     #     if absolute_y == board[0][1]:
@@ -143,12 +175,13 @@ def getFormated(gameState: dict, action: tuple, action_absolute: float):
     destinationX, absolute_y = target_board_pos
     rightDir = 0
     leftDir = 0
+    offset = 0.5
     playerX = gameState['agent_pos'][0]
     print("player x %s" % str(playerX))
-    if playerX > destinationX + 0.1:
+    if playerX > destinationX + offset:
         rightDir = 5.5625 - playerX + (destinationX + 5.5625)
         leftDir = playerX - destinationX
-    elif destinationX > playerX + 0.1:
+    elif destinationX > playerX + offset:
         rightDir = destinationX - playerX
         leftDir = playerX + 5.5625 + (5.5625 - destinationX)
     else:

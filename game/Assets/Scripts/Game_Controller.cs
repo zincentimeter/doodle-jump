@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Game_Controller : MonoBehaviour {
@@ -20,7 +20,6 @@ public class Game_Controller : MonoBehaviour {
 
     public Text Txt_GameOverScore;
     public Text Txt_GameOverHighsocre;
-
 	void Awake () 
     {
         Player = GameObject.Find("Doodler");
@@ -48,6 +47,7 @@ public class Game_Controller : MonoBehaviour {
                 
                 // Set game over
                 Set_GameOver();
+                // TODO: Send Game over signal
                 Game_Over = true;
             }
         }
@@ -81,7 +81,7 @@ public class Game_Controller : MonoBehaviour {
 
         // Active game over menu
         Button_OnClick.Set_GameOverMenu(true);
-
+        SceneManager.LoadScene("In_Game");
         // Enable animation
         Background_Canvas.GetComponent<Animator>().enabled = true;
 

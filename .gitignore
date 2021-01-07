@@ -1,6 +1,8 @@
-pa6
-.vscode
-.idea
-game/build_Data
-game/Temp
-game/obj
+*
+!*.py
+!*.md
+!*.cs
+!*.csproj
+game/login.txt
+game/logout.txt
+game_communicate_ref_code.py

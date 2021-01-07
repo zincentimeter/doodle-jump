@@ -1,8 +1,9 @@
 from math import ceil, trunc
+import socket
 
 # Used for Q matrix size : 100800
 SCREEN_SIZE = (720, 1280)
-dx, dy = 8, 8
+dx, dy = 40, 40
 W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)  # = (90, 160)
 T = 7
@@ -15,7 +16,20 @@ raw_y = 10  # [-raw_y, raw_y]
 def init_globals():
     # Record the last game state
     global last_gameState
+    global text
+    global recv_bytes
     last_gameState = {}
+    text = ''
+    recv_bytes = 8192
+
+    global s
+    s = socket.socket()
+    socket.setdefaulttimeout(None)
+    print('socket created.')
+    port = 60001
+    s.bind(('127.0.0.1', port)) #local host
+    s.listen(30) #listening for connection for 30 sec?
+    print('socket listening ... ')
 
 ##############################################################
 
