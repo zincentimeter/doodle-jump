@@ -4,13 +4,14 @@ from game_interface import *
 from agent_interface import *
 import sys
 import traceback
-from doodlejump import DoodleJump
+from game_logic import DoodleJump
 
 def main():
     # Initializing... : Get Q-Learning Agent
     game = DoodleJump()
     
-    game.run_once(0, X/2, 0)
+    game.update(0, X/2, 0)
+    game.run_once()
     agent = DoodleJumpQLearningAgent(alpha=0.1, gamma=0., epsilon=0.1)
     # First RUN : Do when the game starts
     gameState = getGameState()

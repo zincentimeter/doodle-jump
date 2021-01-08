@@ -1,6 +1,6 @@
 from math import ceil, trunc
 import socket
-import doodlejump
+import game_logic
 # Used for Q matrix size : 100800
 SCREEN_SIZE = (800, 600)
 dx, dy = 8, 6

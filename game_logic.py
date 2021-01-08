@@ -2,8 +2,8 @@ import pygame
 from pygame.locals import *
 import sys
 import random
+import os
 lastY = 0
-gamespeed = 60
 gameState = {}
 class DoodleJump:
     """
@@ -49,6 +49,10 @@ class DoodleJump:
 
         self.clock = pygame.time.Clock()
         self.generatePlatforms()
+
+        self.gameState = dict()
+        self.lastY = 0
+        self.gamespeed = 12000
 
     
     def updatePlayer(self, key):
@@ -173,12 +177,17 @@ class DoodleJump:
         while True:
             self.run_once(key, posX, posY)
 
-    def run_once(self, key, posX, posY):
+    def update(self, key, posX, posY):
+        self.key = key
+        self.posX = posX
+        self.posY = posY
+
+    def run_once(self):
         """
         docstring
         """
+        self.clock = pygame.time.Clock()
         self.screen.fill((255,255,255))
-        self.clock.tick(gamespeed)
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
@@ -192,35 +201,30 @@ class DoodleJump:
             self.playery = 400
         self.drawGrid()
         self.drawPlatforms()
-        self.updatePlayer(key)
+        self.updatePlayer(self.key)
         self.updatePlatforms()
         self.screen.blit(self.font.render(str(self.score), -1, (0, 0, 0)), (25, 25))
         pygame.draw.aaline(self.screen, (255, 0, 0), (self.playerx + 20, self.playery - self.cameray + 30),
-                            (posX + 50, posY - self.cameray + 15), 2)
-        global gameState
-        gameState = {}
-        global lastY
-        gameState["agent_pos"] = (self.playerx, self.playery)
-        gameState["raw_boards"] = []
-        for board in self.platforms:
-            if board[3] == 0:
-                gameState["raw_boards"].append(((board[0], board[1]), board[2]))
+                            (self.posX + 50, self.posY - self.cameray + 15), 2)
 
-        for spring in self.springs:
-            if spring[2] == 0:
-                gameState["raw_boards"].append(((board[0], board[1]), 3))
+        self.gameState["agent_pos"] = (self.playerx, self.playery)
+        self.gameState["raw_boards"] =  [((board[0], board[1]), board[2]) for board in self.platforms if board[3] == 0]
+        self.gameState["raw_boards"] += [((board[0], board[1]), 3) for board in self.platforms if board[3] == 0]
 
-        gameState["cameraY"] = self.cameray
-        gameState["score"] = self.score
-        gameState["agentSpeed"] = self.playery - lastY
-        lastY = self.playery
+        self.gameState["cameraY"] = self.cameray
+        self.gameState["score"] = self.score
+        self.gameState["agent_speed"] = self.playery - self.lastY
+        self.lastY = self.playery
 
-        pygame.display.flip()
+        # pygame.display.flip()
+        pygame.display.update()
+
 
 if __name__ == '__main__':
     game = DoodleJump()
-    game.run(1,300,0)
-    game.run(-1,300,0)
-    game.run(1,300,0)
-    game.run(-1,300,0)
-
+    game.update(1, 300, 300)
+    while (True):
+        game.clock.tick(60)
+        game.run_once()
+        print(game.gameState)
+        os.system('cls')

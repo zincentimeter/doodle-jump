@@ -2,7 +2,7 @@ import os
 import utils
 import numpy as np
 import ast
-import doodlejump
+import game_logic
 from utils import *
 
 ##############################################################
@@ -29,29 +29,8 @@ def getGameState():
     received_dict['num_boards'] = num_boards
     received_dict['raw_boards'] = raw_boards
     received_dict['relative_boards'] = relative_boards
-    # print("filtered_dict : %s." % str(received_dict))
-    # if (received_dict['is_died']):
-    #     print("died at this moment!")
-    # if (received_dict['is_hit']):
-    #     print("hit the wall!")
-    # else:
-    #     print("NOT hit the wall!")
-
 
     return received_dict
-
-    # input(dict_received)
-
-
-def receiveDict():
-    utils.connection, utils.address = utils.s.accept()
-    # print("connection accpeted.\nreceiving...")
-    bytes_received = utils.connection.recv(8192)
-    dict_received = bytes_received.decode('ASCII')
-    # print("gotcha. length : %s." % str(len(dict_received)))
-    # print("payload : %s." % str(ast.literal_eval(dict_received)))
-    return ast.literal_eval(dict_received)
-
 
 def retrieveGameState():
     '''
