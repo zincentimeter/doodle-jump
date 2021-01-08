@@ -46,19 +46,28 @@ MFRLA = ModelFreeReinforcementLearningAgent
 
 
 class EpsilonGreedyAgent(MFRLA):
-    def __init__(self, epsilon, eps_decay=None, eps_end=None, **kwargs):
+    def __init__(self, epsilon, eps_decay=None, eps_interval=None, eps_end=None, **kwargs):
         super().__init__(**kwargs)
         self.epsilon = epsilon
         if eps_decay:
             self.eps_decay = eps_decay
+        if eps_interval:
+            self.eps_interval = eps_interval
         if eps_end:
             self.eps_end = eps_end
+        self.counter = 0
 
     def decide(self, s):
         if random.random() < self.epsilon:
             return self.__get_random_action(s)
         else:
             return self.get_optimal_action(s)
+
+    def observe(self, *args):
+        super().observe(*args)
+        self.counter += 1
+        if not (self.counter % self.eps_interval):
+            self.epsilon = self.eps_end + (self.epsilon - self.eps_end)*self.eps_decay
 
     def __get_random_action(self, s):
         actions = self.get_possible_actions(s)

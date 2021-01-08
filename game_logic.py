@@ -46,6 +46,7 @@ class DoodleJump:
         self.jump = 0
         self.gravity = 0
         self.xmovement = 0
+        self.death_time = 0
 
         self.clock = pygame.time.Clock()
         self.generatePlatforms()
@@ -53,6 +54,7 @@ class DoodleJump:
         self.gameState = dict()
         self.lastY = 0
         self.gamespeed = 12000
+        self.display = False
 
     
     def updatePlayer(self, key):
@@ -82,17 +84,19 @@ class DoodleJump:
             self.playerx = 850
         self.playerx += self.xmovement
         if self.playery - self.cameray <= 200:
-            self.cameray -= 10
-        if not self.direction:
-            if self.jump:
-                self.screen.blit(self.playerRight_1, (self.playerx, self.playery - self.cameray))
+            self.cameray = min(self.playery - 200, self.cameray)
+            # self.cameray -= 10
+        if self.display:
+            if not self.direction:
+                if self.jump:
+                    self.screen.blit(self.playerRight_1, (self.playerx, self.playery - self.cameray))
+                else:
+                    self.screen.blit(self.playerRight, (self.playerx, self.playery - self.cameray))
             else:
-                self.screen.blit(self.playerRight, (self.playerx, self.playery - self.cameray))
-        else:
-            if self.jump:
-                self.screen.blit(self.playerLeft_1, (self.playerx, self.playery - self.cameray))
-            else:
-                self.screen.blit(self.playerLeft, (self.playerx, self.playery - self.cameray))
+                if self.jump:
+                    self.screen.blit(self.playerLeft_1, (self.playerx, self.playery - self.cameray))
+                else:
+                    self.screen.blit(self.playerLeft, (self.playerx, self.playery - self.cameray))
 
     def updatePlatforms(self):
         for p in self.platforms:
@@ -133,24 +137,27 @@ class DoodleJump:
                     self.springs.append([coords[0], coords[1] - 25, 0])
                 self.platforms.pop(0)
                 self.score += 100
-            if p[2] == 0:
-                self.screen.blit(self.green, (p[0], p[1] - self.cameray))
-            elif p[2] == 1:
-                self.screen.blit(self.blue, (p[0], p[1] - self.cameray))
-            elif p[2] == 2:
-                if not p[3]:
-                    self.screen.blit(self.red, (p[0], p[1] - self.cameray))
-                else:
-                    self.screen.blit(self.red_1, (p[0], p[1] - self.cameray))
+            if self.display:
+                if p[2] == 0:
+                    self.screen.blit(self.green, (p[0], p[1] - self.cameray))
+                elif p[2] == 1:
+                    self.screen.blit(self.blue, (p[0], p[1] - self.cameray))
+                elif p[2] == 2:
+                    if not p[3]:
+                        self.screen.blit(self.red, (p[0], p[1] - self.cameray))
+                    else:
+                        self.screen.blit(self.red_1, (p[0], p[1] - self.cameray))
     
         for spring in self.springs:
-            if spring[-1]:
-                self.screen.blit(self.spring_1, (spring[0], spring[1] - self.cameray))
-            else:
-                self.screen.blit(self.spring, (spring[0], spring[1] - self.cameray))
+            if self.display:
+                if spring[-1]:
+                    self.screen.blit(self.spring_1, (spring[0], spring[1] - self.cameray))
+                else:
+                    self.screen.blit(self.spring, (spring[0], spring[1] - self.cameray))
             if pygame.Rect(spring[0], spring[1], self.spring.get_width(), self.spring.get_height()).colliderect(pygame.Rect(self.playerx, self.playery, self.playerRight.get_width(), self.playerRight.get_height())):
                 self.jump = 50
-                self.cameray -= 50
+                self.cameray = min(self.playery - 200, self.cameray)
+                
 
     def generatePlatforms(self):
         on = 600
@@ -177,21 +184,24 @@ class DoodleJump:
         while True:
             self.run_once(key, posX, posY)
 
-    def update(self, key, posX, posY):
-        self.key = key
-        self.posX = posX
-        self.posY = posY
+    def update(self, action: tuple):
+        self.key = action[0]
+        self.posX = action[1][0]
+        self.posY = action[1][1]
 
     def run_once(self):
         """
         docstring
         """
-        self.clock = pygame.time.Clock()
+        # self.clock = pygame.time.Clock()
         self.screen.fill((255,255,255))
+        self.clock.tick(120)
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
         if self.playery - self.cameray > 700:
+            self.death_time += 1
+            self.score_for_display = self.score
             self.cameray = 0
             self.score = 0
             self.springs = []
@@ -199,12 +209,16 @@ class DoodleJump:
             self.generatePlatforms()
             self.playerx = 400
             self.playery = 400
-        self.drawGrid()
-        self.drawPlatforms()
+            self.gameState["is_died"] = True
+            return
+        if True:
+            self.drawGrid()
+            self.drawPlatforms()
         self.updatePlayer(self.key)
         self.updatePlatforms()
-        self.screen.blit(self.font.render(str(self.score), -1, (0, 0, 0)), (25, 25))
-        pygame.draw.aaline(self.screen, (255, 0, 0), (self.playerx + 20, self.playery - self.cameray + 30),
+        if self.display:
+            self.screen.blit(self.font.render(str(self.score), -1, (0, 0, 0)), (25, 25))
+            pygame.draw.aaline(self.screen, (255, 0, 0), (self.playerx + 20, self.playery - self.cameray + 30),
                             (self.posX + 50, self.posY - self.cameray + 15), 2)
 
         self.gameState["agent_pos"] = (self.playerx, self.playery)
@@ -214,17 +228,10 @@ class DoodleJump:
         self.gameState["cameraY"] = self.cameray
         self.gameState["score"] = self.score
         self.gameState["agent_speed"] = self.playery - self.lastY
+        self.gameState["is_died"] = False
+        self.gameState["is_hit"] = (self.playery - self.lastY == -15)
         self.lastY = self.playery
 
         # pygame.display.flip()
-        pygame.display.update()
-
-
-if __name__ == '__main__':
-    game = DoodleJump()
-    game.update(1, 300, 300)
-    while (True):
-        game.clock.tick(60)
-        game.run_once()
-        print(game.gameState)
-        os.system('cls')
+        if self.display:
+            pygame.display.update()
