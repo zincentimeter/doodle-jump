@@ -2,13 +2,14 @@ import os
 import utils
 import numpy as np
 import ast
+import doodlejump
 from utils import *
 
 ##############################################################
 # Game -> Model Processing
 
 def getGameState():
-    received_dict = receiveDict()
+    received_dict = doodlejump.gameState
     
     # print("received_dict : %s." % str(received_dict))
     raw_boards = list()
@@ -206,26 +207,24 @@ def getFormated(gameState: dict, action_absolute: float, q_dict_str_debug : str,
     playerX = gameState['agent_pos'][0]
     # print("player x %s" % str(playerX))
     if playerX > destinationX + offset:
-        rightDir = 5.5625 - playerX + (destinationX + 5.5625)
+        rightDir = X/2 - playerX + (destinationX + X/2)
         leftDir = playerX - destinationX
     elif destinationX > playerX + offset:
         rightDir = destinationX - playerX
-        leftDir = playerX + 5.5625 + (5.5625 - destinationX)
+        leftDir = playerX + X/2 + (X/2 - destinationX)
     else:
         absolute_y = absolute_y
-        text = '0 ' + str(destinationX) + ' ' + str(absolute_y)
-        if debug:
-            text += " | "+q_dict_str_debug
-        # input(text)
-        return text
+        direction = 0
+        # text = '0 ' + str(destinationX) + ' ' + str(absolute_y)
+        # if debug:
+        #     text += " | "+q_dict_str_debug
+        # # input(text)
+        # return text
 
     absolute_y = absolute_y
     # input("absolute_y = %s" % str(absolute_y))
     if rightDir <= leftDir:
-        text = '1 ' + str(destinationX) + ' ' + str(absolute_y)
+        direction = 1
     else:
-        text = '-1 ' + str(destinationX) + ' ' + str(absolute_y)
-    if debug:
-        text += " | "+q_dict_str_debug
-    # input(text)
-    return text
+        direction = -1
+    return (direction, destinationX, absolute_y)

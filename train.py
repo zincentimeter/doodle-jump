@@ -4,12 +4,14 @@ from game_interface import *
 from agent_interface import *
 import sys
 import traceback
+from doodlejump import DoodleJump
 
 def main():
     # Initializing... : Get Q-Learning Agent
-    init_globals()
-    agent = DoodleJumpQLearningAgent(alpha=0.1, gamma=0., epsilon=0.1)
+    game = DoodleJump()
     
+    game.run_once(0, X/2, 0)
+    agent = DoodleJumpQLearningAgent(alpha=0.1, gamma=0., epsilon=0.1)
     # First RUN : Do when the game starts
     gameState = getGameState()
     # Decision
@@ -31,6 +33,7 @@ def main():
         print("max speed = %s" % max_speed)
 
         # Retrieve new game state
+        game.run_once(message)
         gameState = getGameState()
         is_died, is_hit = gameState['is_died'], gameState['is_hit']
         reward = (gameState['score'] - lastState['score'] - 10) if (not is_died) \

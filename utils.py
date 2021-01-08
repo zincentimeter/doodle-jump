@@ -1,9 +1,9 @@
 from math import ceil, trunc
 import socket
-
+import doodlejump
 # Used for Q matrix size : 100800
-SCREEN_SIZE = (720, 1280)
-dx, dy = 60, 80
+SCREEN_SIZE = (800, 600)
+dx, dy = 8, 6
 W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)  # = (90, 160)
 T = 7
@@ -21,19 +21,21 @@ def init_globals():
     global connection
     last_gameState = {}
     text = ''
-    recv_bytes = 8192
-    try:
-        global s
-        s = socket.socket()
-        socket.setdefaulttimeout(None)
-        print('socket created.')
-        port = 60001
-        s.bind(('127.0.0.1', port)) #local host
-        s.listen(30) #listening for connection for 30 sec?
-        print('socket listening ... ')
-    except KeyboardInterrupt:
-        print("manually terminated while receiving.")
-        exit()
+    
+
+    # recv_bytes = 8192
+    # try:
+    #     global s
+    #     s = socket.socket()
+    #     socket.setdefaulttimeout(None)
+    #     print('socket created.')
+    #     port = 60001
+    #     s.bind(('127.0.0.1', port)) #local host
+    #     s.listen(30) #listening for connection for 30 sec?
+    #     print('socket listening ... ')
+    # except KeyboardInterrupt:
+    #     print("manually terminated while receiving.")
+    #     exit()
 
 
 ##############################################################
@@ -57,15 +59,19 @@ def truncate(relatives: tuple):
 
 def absoluteToRelative(absolultes: tuple, absolute_reference: tuple):
     absolute_x, absolute_y = difference(absolultes, absolute_reference)
-    relative_x = (absolute_x + 2 * raw_x) * X / (4 * raw_x)
-    relative_y = (absolute_y + 2 * raw_y) * Y / (4 * raw_y)
+    # relative_x = (absolute_x + 2 * raw_x) * X / (4 * raw_x)
+    # relative_y = (absolute_y + 2 * raw_y) * Y / (4 * raw_y)
+    relative_x = (absolute_x) * X / raw_x
+    relative_y = (absolute_y) * Y / raw_y
     return truncate((relative_x, relative_y))
 
 
 def relativeToAbsolute(relatives: tuple, absolute_reference: tuple):
     relative_x, relative_y = relatives
-    absolute_x = (relative_x * 4 * raw_x) / X - 2 * raw_x
-    absolute_y = (relative_y * 4 * raw_y) / Y - 2 * raw_y
+    # absolute_x = (relative_x * 4 * raw_x) / X - 2 * raw_x
+    # absolute_y = (relative_y * 4 * raw_y) / Y - 2 * raw_y
+    absolute_x = relative_x * raw_x / X
+    absolute_y = relative_y * raw_y / Y
     return add((absolute_x, absolute_y), absolute_reference)
 
 
