@@ -8,60 +8,67 @@ import traceback
 def main():
     # Initializing... : Get Q-Learning Agent
     init_globals()
-    agent = DoodleJumpQLearningAgent(alpha=0.02, gamma=0.8, epsilon=0.05)
+    agent = DoodleJumpQLearningAgent(alpha=0.1, gamma=0., epsilon=0.1)
+    
     # First RUN : Do when the game starts
-    # gameState = retrieveGameState()
-    while (True):
-        gameState = getGameState()
-        print("gameState type = %s\n payload = %s" % (str(type(gameState)), str(gameState)))
-    exit()
+    gameState = getGameState()
     # Decision
     action = agent.decide(gameState)
     action_absolute = relativeToAbsolute(action[0], gameState['agent_pos'])
+    message = getFormated(gameState, action_absolute[1], "agent._get_q_dict_str_debug(gameState)")
     # Write back to game
-    writeBack(getFormated(gameState, action[0], action_absolute[1]))
+    writeBack(message)
     # Prepare for the other runs.
     lastState, lastAction, lastAction_absolute = gameState, action, action_absolute
-    decisionList = []
-
-
+    max_score = 0
+    max_speed = 0
     while (True):
         # try:
+        max_score = max(max_score, gameState['score'])
+        max_speed = max(max_speed, gameState['agent_speed'])
+        print("update counter = %s" % str(agent.save_counter))
+        print("max score = %s" % max_score)
+        print("max speed = %s" % max_speed)
+
         # Retrieve new game state
-        gameState = retrieveGameState()
-        # Only decide when hit the board
-        if gameState['agent_speed'] > 13.5:
+        gameState = getGameState()
+        is_died, is_hit = gameState['is_died'], gameState['is_hit']
+        reward = (gameState['score'] - lastState['score'] - 10) if (not is_died) \
+            else -1000
+
+        if (is_died):
+            print(gameState)
+            if (gameState['relative_boards'] != []):
+                agent.observe(lastState, lastAction, gameState, reward)
+            action = lastAction
+            action_absolute = lastAction_absolute            
+            message = "0" # Writeback omittable output
+        # Make decision and update only when hit.
+        elif (is_hit):
             # Training
-            reward = gameState['score'] - lastState['score']
-            # agent.update_Q(lastState, lastAction, gameState, reward)
             agent.observe(lastState, lastAction, gameState, reward)
             # Decision
             action = agent.decide(gameState)
             action_absolute = relativeToAbsolute(action[0], gameState['agent_pos'])
-            if action[0][0] < 0 or action[0][1] < 0:
-                action = lastAction
-                action_absolute = lastAction_absolute
-            # for debug!
-            # print("Q_matrix = %s" % str(agent.Q))
-            decisionList.append(gameState['agent_speed'])
-            # print
+            message = getFormated(gameState, action_absolute[1], "", debug=False)
         else:
+            action = lastAction
             action_absolute = lastAction_absolute
+            message = getFormated(gameState, action_absolute[1], "", debug=False)
+
+        
         # Write back to game
-        writeBack(getFormated(gameState, action[0], action_absolute[1]))
+        writeBack(message)
         # Update last information
         lastState, lastAction, lastAction_absolute = gameState, action, action_absolute
 
         # just for displaying debug info
+        if (is_hit):
+            print("is hit!")
+        else:
+            # print("not hit!")
+            pass
         os.system("cls")
-        # except Exception as e:
-        #     # if (not (isinstance(e, ValueError))) and (not (isinstance(e, KeyError))):
-        #     exc_type, exc_value, exc_traceback_obj = sys.exc_info()
-        #     input(str(exc_type))
-        #     input(str(exc_value))
-        #     traceback.print_tb(exc_traceback_obj)
-
-
 
 if __name__ == "__main__":
     main()

@@ -47,7 +47,6 @@ public class Game_Controller : MonoBehaviour {
                 
                 // Set game over
                 Set_GameOver();
-                // TODO: Send Game over signal
                 Game_Over = true;
             }
         }
@@ -78,14 +77,13 @@ public class Game_Controller : MonoBehaviour {
         Txt_GameOverScore.text = Score.ToString();
         Txt_GameOverHighsocre.text = Data_Manager.Get_HighScore().ToString();
         GameObject Background_Canvas = GameObject.Find("Background_Canvas");
-
         // Active game over menu
         Button_OnClick.Set_GameOverMenu(true);
         SceneManager.LoadScene("In_Game");
         // Enable animation
-        Background_Canvas.GetComponent<Animator>().enabled = true;
+        Background_Canvas.GetComponent<Animator>().enabled = false;
 
         // Save file
-        File_Manager.Save_Info();
+        // File_Manager.Save_Info();
     }
 }

@@ -70,7 +70,7 @@ class SoftmaxAgent(MFRLA):
         actions = self.get_possible_actions(s)
         if 0 == len(actions):
             self.raise_no_possible_actions_error()
-        dist = [(exp(self.get_Q(s, a)), a) for a in actions]
+        dist = [(exp(self.get_Q(s, a)/100), a) for a in actions]
         return self.__choose_by_weight(dist)
 
     def __choose_by_weight(self, dist):

@@ -3,7 +3,7 @@ import socket
 
 # Used for Q matrix size : 100800
 SCREEN_SIZE = (720, 1280)
-dx, dy = 40, 40
+dx, dy = 60, 80
 W, H = SCREEN_SIZE
 X, Y = ceil(W / dx), ceil(H / dy)  # = (90, 160)
 T = 7
@@ -18,18 +18,23 @@ def init_globals():
     global last_gameState
     global text
     global recv_bytes
+    global connection
     last_gameState = {}
     text = ''
     recv_bytes = 8192
+    try:
+        global s
+        s = socket.socket()
+        socket.setdefaulttimeout(None)
+        print('socket created.')
+        port = 60001
+        s.bind(('127.0.0.1', port)) #local host
+        s.listen(30) #listening for connection for 30 sec?
+        print('socket listening ... ')
+    except KeyboardInterrupt:
+        print("manually terminated while receiving.")
+        exit()
 
-    global s
-    s = socket.socket()
-    socket.setdefaulttimeout(None)
-    print('socket created.')
-    port = 60001
-    s.bind(('127.0.0.1', port)) #local host
-    s.listen(30) #listening for connection for 30 sec?
-    print('socket listening ... ')
 
 ##############################################################
 

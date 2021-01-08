@@ -11,8 +11,8 @@ class DoodleJumpQLearningAgent(QLA, EGA):
         QLA.__init__(self, **kwargs)
         EGA.__init__(self, **kwargs)
         # self.Q = np.zeros((X+1, Y+1, T))
-        self.Q = np.random.rand(X+1, Y+1, T) + 1000
-        self.save_interval = 100
+        self.Q = np.random.rand(X+1, Y+1, T)
+        self.save_interval = 1000
         self.save_counter = 0
 
     def get_Q(self, s, a):
@@ -37,3 +37,14 @@ class DoodleJumpQLearningAgent(QLA, EGA):
             p, t = board[:2]
             actions.append((p, t))
         return actions
+
+    def _get_q_dict_str_debug(self, s):
+        observation = dict()
+        num_boards = s['num_boards']
+        raw_boards = s['raw_boards']
+        relative_boards = s['relative_boards']
+        for i in range(num_boards):
+            key = str(raw_boards[i][0])
+            value = str(self.get_Q(s, relative_boards[i]))
+            observation[key] = value
+        return str(observation)

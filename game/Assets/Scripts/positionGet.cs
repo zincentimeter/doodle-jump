@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.IO;
+using Newtonsoft.Json;
 public class positionGet : MonoBehaviour
 {
     private string Buffer = "";
@@ -12,11 +13,12 @@ public class positionGet : MonoBehaviour
     public Text text;
     public GameObject Camera;
 	public Dictionary<String, String> Storage;
-
+    private GameObject Game_Controller;
 	public Component Connection;
     // Use this for initialization
     void Start()
     {
+        Game_Controller = GameObject.Find("Game_Controller");
         player = GameObject.Find("Doodler").GetComponent<Player_Controller>();
         text = GameObject.Find("Text_Score").GetComponent<Text>();
         Camera = GameObject.Find("Main Camera");
@@ -44,7 +46,8 @@ public class positionGet : MonoBehaviour
 		raw_boards = "[" + raw_boards + "]";
 		Storage["raw_boards"] = raw_boards;
 		Storage["is_pause"] = "False";
-		Storage["is_died"] = "False";
+		Storage["is_died"] = Game_Controller.GetComponent<Game_Controller>().Get_GameOver() ? "True" : "False";
+		Storage["is_hit"] = player.Hit ? "True" : "False";
 		Storage["score"] = $"{text.text}";
 
 		var Output = "";
@@ -53,7 +56,51 @@ public class positionGet : MonoBehaviour
 			Output += $"\'{entry.Key}\' : {entry.Value},";
 		}
 		Output = "{" + Output + "}";
-		Connection.GetComponent<Communicate_Python>().ServerRequest(Output);
+
+		String ReceivedMessage = Connection.GetComponent<Communicate_Python>().ServerRequest(Output);
+		if (ReceivedMessage == "0")
+			return;
+		// String[] Messages = ReceivedMessage.Split( "|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries );
+		// if (Messages.Length == 2)
+		// {
+		// 	// // print(Messages[1].Trim(' ').TrimStart('{').TrimEnd('}').Replace('\'', '\"'));
+		// 	// var Dict = JsonConvert.DeserializeObject<Dictionary<String, float>>(Messages[1]);
+			
+		// 	// // String[] Q_Messages = Messages[1] .Trim(charsToTrim) .Split( ",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries );
+		// 	// // List<GameObject> UItext = new List<GameObject>();
+		// 	// foreach (var entry in Dict)
+		// 	// {
+		// 	// 	// print(entry);
+		// 	// 	var Coordinates = entry.Key.Trim(' ').TrimStart('(').TrimEnd(')').Split(',');
+		// 	// 	float Q_Value = entry.Value;
+		// 	// 	float x = float.Parse(Coordinates[0]);
+		// 	// 	float y = float.Parse(Coordinates[1]);
+
+
+		// 	// 	print($"{x} {y} {Q_Value}");
+		// 	// 	GameObject Object = new GameObject($"({x},{y})");
+		// 	// 	// RectTransform trans = Object.AddComponent<RectTransform>();
+		// 	//     // trans.anchoredPosition = new Vector2(x, y);
+		// 	// 	// Text TextBox = Object.AddComponent<Text>();
+		// 	// 	// TextBox.text = Q_Value.ToString();
+		// 	// 	// TextBox.fontSize = 80;
+		// 	// 	// TextBox.color = Color.green;
+		// 	// 	// TextBox.transform.position = new Vector3(x, y, 0);
+		// 	// 	// TextBox.rectTransform.anchoredPosition3D = new Vector3(x, y, 0);
+		// 	// 	// Object.transform.SetParent(GameObject.Find("Main Camera").transform);
+		// 	// 	// UItext.Add(Object);
+		// 	// 	// Object.transform.SetParent(null);
+		// 	// }
+
+		// }
+		String[] DirectionMessages = ReceivedMessage.Split(' ');
+		// print($"Recv:{ReceivedMessage}");
+		int control = int.Parse(DirectionMessages[0]);
+		float destinationX = float.Parse(DirectionMessages[1]);
+		float destinationY = float.Parse(DirectionMessages[2]);
+
+		// print(Player.ToString());
+		player.SetDirection(control, destinationX, destinationY);
 		// Connection.ServerRequest(Output);
 		// Storage.Add("agent_pos", $"({agent_pos_x},{agent_pos_y})");
 		// Storage.Add("agent_speed", $"{player.getSpeed()}");
@@ -113,5 +160,21 @@ public class positionGet : MonoBehaviour
 			default:
 				return -1;
 		}
+	}
+
+	GameObject CreateText(Transform canvas_transform, float x, float y, string text_to_print, int font_size, Color text_color)
+	{
+		GameObject UItextGO = new GameObject("Text2");
+		UItextGO.transform.SetParent(canvas_transform);
+
+		RectTransform trans = UItextGO.AddComponent<RectTransform>();
+		trans.anchoredPosition = new Vector2(x, y);
+
+		Text text = UItextGO.AddComponent<Text>();
+		text.text = text_to_print;
+		text.fontSize = font_size;
+		text.color = text_color;
+
+		return UItextGO;
 	}
 }
